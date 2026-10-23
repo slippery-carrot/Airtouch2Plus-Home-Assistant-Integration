@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Enter AirTouch2+ host IP",
+        "title": "Connect to AirTouch 2+ Enhanced",
         "data": {
           "host": "[%key:common::config_flow::data::host%]"
         }
@@ -20,5 +20,6 @@
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "no_units": "No AC units were found"
     }
-  }
+  },
+  "title": "AirTouch 2+ Enhanced"
 }

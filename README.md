@@ -1,33 +1,32 @@
-# AirTouch 2+ integration — aramshaw fork
+# AirTouch 2+ Enhanced
 
-**This is a fork of [nathanvdh's AirTouch 2+ integration](https://github.com/nathanvdh/homeassistant-airtouch2plus) with connection-reliability fixes and extra features.** It exists so the fixes can be run and soak-tested while they are contributed back upstream ([PR #18](https://github.com/nathanvdh/airtouch2-python/pull/18)). Once merged upstream, that's the place to be.
+An independently named Home Assistant custom integration for Polyaire AirTouch 2+ systems, maintained at [slippery-carrot/Airtouch2Plus-Home-Assistant-Integration](https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration).
 
-> Active development happens on the `feat/favourites-and-console-temp` branch; `master` deliberately mirrors upstream. HACS installs from [releases](https://github.com/aramshaw/homeassistant-airtouch2plus/releases), which are cut from the feature branch.
+Based on [aramshaw's reliability-focused fork](https://github.com/aramshaw/homeassistant-airtouch2plus) of [nathanvdh's original integration](https://github.com/nathanvdh/homeassistant-airtouch2plus).
 
-## What's different from upstream
+## Features
 
-- **Connection-dropout fixes** (the "becomes unavailable" problem):
-  - ACKs the controller's undocumented status broadcasts (with the required `0xC0` address)
-  - Keep-alive poll defeats the controller's ~16-minute idle timeout
-  - Survives the controller dropping off WiFi mid-connection (auto-reconnects — no more dead-until-restart)
-- **Favourites** — view and activate AirTouch favourites from HA
-- **Console temperature** — the touchscreen's temperature as a sensor
-- Entities go *unavailable* during outages and recover automatically
-- The [airtouch2 library (forked)](https://github.com/aramshaw/airtouch2-python) is **bundled** — no separate install needed
+- Climate control (operating mode, setpoint and fan speed)
+- AirTouch zone dampers exposed as fan entities
+- AirTouch favourites exposed as a select entity
+- Console temperature sensors
+- Bundled modified `airtouch2` library with status acknowledgements, periodic keep-alive status polls, and reconnect handling
+- HA entities report unavailable during detected controller disconnections
 
-**This component will set up the following platforms.**
+## Installation (development branch)
 
-Platform | Description
--- | --
-`climate` | Control temperature, mode, fan speed
-`fan` | Zones (groups) as fan entities
-`select` | Activate favourites
-`sensor` | Console (touchscreen) temperature
+1. Back up Home Assistant before replacing an existing AirTouch integration.
+2. Add `https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration` to HACS as a custom **Integration** repository.
+3. For this unreleased change, choose branch `feature/integration-rebrand` if your HACS version allows selecting a branch; otherwise manually copy the `custom_components/airtouch2plus_enhanced` folder from that branch into Home Assistant's `config/custom_components`.
+4. Restart Home Assistant.
+5. Go to **Settings → Devices & services → Add integration**, search for **AirTouch 2+ Enhanced**, and enter the controller IP address.
 
-## Installation
+The integration is installed at `custom_components/airtouch2plus_enhanced` with domain `airtouch2plus_enhanced`.
 
-This integration is not available in Home Assistant by default — install it via HACS (recommended):
+**Migration:** This is deliberately a *different integration*, not an in-place upgrade from `airtouch2plus`. Existing config entries and entity-registry associations do not automatically move. Check the new entity IDs before changing any dashboards or damper-control automations. To avoid conflicting sessions, do not leave both integrations active during testing.
 
-1. In HACS, add `https://github.com/aramshaw/homeassistant-airtouch2plus` as a [custom repository](https://www.hacs.xyz/docs/faq/custom_repositories) (type: **Integration**), then download it.
-2. In the HA UI go to "Settings" → "Devices & Services" → "+ Add integration" and search for "airtouch2plus".
-3. Enter the host address (IP) of your AirTouch 2+ system — and that's it.
+## Development and acknowledgements
+
+This rebrand retains existing controller-protocol code and entity unique-ID patterns, while changing the Home Assistant integration identity. Please report problems to [this repository's issues](https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/issues).
+
+Original integration by [nathanvdh](https://github.com/nathanvdh). TCP reliability work, favourites and console temperatures by [aramshaw](https://github.com/aramshaw).

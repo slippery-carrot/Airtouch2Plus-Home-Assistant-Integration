@@ -1,4 +1,4 @@
-"""Config flow for airtouch2 integration."""
+"""Config flow for AirTouch 2+ Enhanced."""
 from __future__ import annotations
 
 import logging
@@ -34,11 +34,11 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     await client.stop()
     # Return info that you want to store in the config entry.
-    return {"title": "Airtouch 2+ Control System"}
+    return {"title": "AirTouch 2+ Enhanced"}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for airtouch2plus."""
+    """Handle a config flow for AirTouch 2+ Enhanced."""
 
     VERSION = 1
 
