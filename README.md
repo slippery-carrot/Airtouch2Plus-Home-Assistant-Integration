@@ -10,6 +10,7 @@ Based on [aramshaw's reliability-focused fork](https://github.com/aramshaw/homea
 - AirTouch zone dampers exposed as fan entities
 - AirTouch favourites exposed as a select entity
 - Console temperature sensors
+- TCP connection status and current-session uptime diagnostics (no extra controller polling)
 - Bundled modified `airtouch2` library with status acknowledgements, periodic keep-alive status polls, and reconnect handling
 - HA entities report unavailable during detected controller disconnections
 
@@ -24,6 +25,10 @@ Based on [aramshaw's reliability-focused fork](https://github.com/aramshaw/homea
 The integration is installed at `custom_components/airtouch2plus_enhanced` with domain `airtouch2plus_enhanced`.
 
 **Migration:** This is deliberately a *different integration*, not an in-place upgrade from `airtouch2plus`. Existing config entries and entity-registry associations do not automatically move. Check the new entity IDs before changing any dashboards or damper-control automations. To avoid conflicting sessions, do not leave both integrations active during testing.
+
+## Connection diagnostics (development)
+
+The AirTouch device exposes **TCP connection** (connected/disconnected) and **TCP connection uptime** (duration in seconds, refreshed once per minute). The uptime resets if the connection is lost and starts again after reconnecting, including following an integration restart. The connectivity state reflects the library's socket tracking; it is not yet a proof that application-level status responses are arriving. A frozen or half-open connection may still appear connected until a network error is detected.
 
 ## Development and acknowledgements
 
