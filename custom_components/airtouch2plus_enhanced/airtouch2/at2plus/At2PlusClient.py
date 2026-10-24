@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 import logging
+from time import monotonic
 
 from airtouch2.at2plus.At2PlusAircon import At2PlusAircon
 from airtouch2.at2plus.At2PlusGroup import At2PlusGroup
@@ -46,6 +47,8 @@ class At2PlusClient:
         self.favourites: list[Favourite] = []
         self.active_favourite_id: int | None = None
         self.connected: bool = False
+        # Monotonic time measures this TCP session, unaffected by clock changes.
+        self._connected_since: float | None = None
 
         # private
         self._client = NetClient(
@@ -239,9 +242,18 @@ class At2PlusClient:
         for callback in self._favourite_callbacks:
             callback()
 
+    @property
+    def connection_uptime_seconds(self) -> int:
+        """Elapsed time on the current TCP connection, or zero while offline."""
+        if self._connected_since is None:
+            return 0
+        return max(0, int(monotonic() - self._connected_since))
+
     def _set_connected(self, connected: bool) -> None:
         if connected != self.connected:
             self.connected = connected
+            # Reconnecting starts a fresh session; disconnection clears uptime.
+            self._connected_since = monotonic() if connected else None
             for callback in self._connection_callbacks:
                 callback()
 
