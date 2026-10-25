@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 from time import monotonic
 
@@ -49,6 +49,8 @@ class At2PlusClient:
         self.connected: bool = False
         # Monotonic time measures this TCP session, unaffected by clock changes.
         self._connected_since: float | None = None
+        self.tcp_disconnect_count: int = 0
+        self.last_tcp_disconnect: datetime | None = None
 
         # private
         self._client = NetClient(
@@ -252,6 +254,11 @@ class At2PlusClient:
     def _set_connected(self, connected: bool) -> None:
         if connected != self.connected:
             self.connected = connected
+            if not connected:
+                # Keep a durable record of short outages that may reconnect
+                # before HA history or dashboards visibly show Disconnected.
+                self.tcp_disconnect_count += 1
+                self.last_tcp_disconnect = datetime.now(timezone.utc)
             # Reconnecting starts a fresh session; disconnection clears uptime.
             self._connected_since = monotonic() if connected else None
             for callback in self._connection_callbacks:
