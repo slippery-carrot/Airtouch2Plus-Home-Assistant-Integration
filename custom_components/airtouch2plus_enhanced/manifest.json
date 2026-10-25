@@ -1,0 +1,17 @@
+{
+  "domain": "airtouch2plus_enhanced",
+  "name": "AirTouch 2+ Enhanced",
+  "codeowners": [
+    "@slippery-carrot"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration",
+  "homekit": {},
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/issues",
+  "requirements": [],
+  "ssdp": [],
+  "version": "0.5.0",
+  "zeroconf": []
+}

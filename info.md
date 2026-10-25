@@ -1,17 +1,12 @@
-# Airtouch 2+ integration
+# AirTouch 2+ Enhanced
 
-_Component to integrate with Polyaire Airtouch 2+._
+A separately identifiable Home Assistant integration for Polyaire AirTouch 2+ controllers.
 
-Utilizes [airtouch2-python](https://github.com/nathanvdh/airtouch2-python)
+- **Domain:** `airtouch2plus_enhanced`
+- **Entities:** climate, zone fan/damper, favourite select, console temperature sensors
+- **Communications:** bundled modified `airtouch2` library incorporating aramshaw's reconnection and keep-alive work
+- **Source:** https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration
 
-**This component will set up the following platforms.**
+For installation and migration details, see the [README](https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/blob/feature/integration-rebrand/README.md). A full Home Assistant backup is recommended: the new domain creates new integration and device registrations rather than upgrading existing `airtouch2plus` entries in place.
 
-Platform | Description
--- | --
-`climate` | Control temperature, mode, fan speed
-
-## Installation
-
-1. Click install.
-1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "airtouch2plus".
-1. Enter the host address (IP) of the Airtouch 2+ system
+Credits: [nathanvdh](https://github.com/nathanvdh), [aramshaw](https://github.com/aramshaw).

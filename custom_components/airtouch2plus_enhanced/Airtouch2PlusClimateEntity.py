@@ -17,7 +17,7 @@ from homeassistant.components.climate import (
     HVACMode,
     UnitOfTemperature,
     ATTR_TEMPERATURE,
-    PRECISION_TENTHS
+    PRECISION_WHOLE
 )
 from homeassistant.helpers.entity import DeviceInfo
 
@@ -34,8 +34,10 @@ class Airtouch2PlusClimateEntity(ClimateEntity):
     #
     # ClimateEntity attributes:
     #
-    _attr_precision: float = PRECISION_TENTHS
-    _attr_target_temperature_step: float = 0.1
+    _attr_max_temp: float = 35.0
+    _attr_min_temp: float = 10.0
+    _attr_precision: float = PRECISION_WHOLE
+    _attr_target_temperature_step: float = 1.0
     _attr_temperature_unit: str = UnitOfTemperature.CELSIUS
 
     def __init__(self, at2plus_aircon: At2PlusAircon) -> None:
@@ -69,11 +71,19 @@ class Airtouch2PlusClimateEntity(ClimateEntity):
             model="Airtouch 2+",
         )
 
+    @property
+    def available(self) -> bool:
+        """Return False while the controller connection is down."""
+        return self._ac._client.connected
+
     async def async_added_to_hass(self) -> None:
         """Call when entity is added."""
         # Add callback for when aircon receives new data
         # Removes callback on remove
         self.async_on_remove(self._ac.add_callback(self.async_write_ha_state))
+        self.async_on_remove(
+            self._ac._client.add_connection_callback(self.async_write_ha_state)
+        )
 
     #
     # ClimateEntity overrides:

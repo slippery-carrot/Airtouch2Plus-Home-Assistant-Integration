@@ -1,5 +1,12 @@
-"""The airtouch2 integration."""
+"""The AirTouch 2+ Enhanced integration."""
 from __future__ import annotations
+
+# Use the airtouch2 library bundled in this integration (no pip/git needed at
+# install time). This must run before importing airtouch2.
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
 
 from airtouch2.at2plus import At2PlusClient
 
@@ -10,17 +17,17 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.FAN]
+PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.FAN, Platform.SELECT, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up airtouch2 from a config entry."""
+    """Set up AirTouch 2+ Enhanced from a config entry."""
 
     hass.data.setdefault(DOMAIN, {})
     client = At2PlusClient(entry.data[CONF_HOST])
     if not await client.connect():
         raise ConfigEntryNotReady(
-            f"Airtouch2+ client failed to connect to {entry.data[CONF_HOST]}")
+            f"AirTouch 2+ Enhanced client failed to connect to {entry.data[CONF_HOST]}")
     client.run()
     await client.wait_for_ac()
     if not client.aircons_by_id:
