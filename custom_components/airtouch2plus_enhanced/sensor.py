@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 
 from airtouch2.at2plus import At2PlusClient
 
@@ -11,10 +12,11 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN
 
@@ -32,6 +34,7 @@ async def async_setup_entry(
     have been received yet at setup, so sensors are added as consoles appear.
     """
     client: At2PlusClient = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities([AirTouchConnectionUptime(client)])
     added: set[int] = set()
 
     @callback
@@ -85,3 +88,42 @@ class AirTouch2PlusConsoleTemperature(SensorEntity):
         self.async_on_remove(
             self._client.add_connection_callback(self.async_write_ha_state)
         )
+
+class AirTouchConnectionUptime(SensorEntity):
+    """Seconds elapsed on the currently established TCP session."""
+
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+    _attr_name = "TCP connection uptime"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, client: At2PlusClient) -> None:
+        self._client = client
+        self._ac_id = next(iter(client.aircons_by_id))
+        self._attr_unique_id = f"at2plus_ac_{self._ac_id}_tcp_connection_uptime"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(identifiers={(DOMAIN, f"at2plus_ac_{self._ac_id}")})
+
+    @property
+    def native_value(self) -> int:
+        # Zero when offline; a new successful connection starts a new timer.
+        return self._client.connection_uptime_seconds
+
+    async def async_added_to_hass(self) -> None:
+        self.async_on_remove(
+            self._client.add_connection_callback(self.async_write_ha_state)
+        )
+        # Recalculate the value locally each minute: no controller requests.
+        self.async_on_remove(
+            async_track_time_interval(
+                self.hass, self._refresh_uptime, timedelta(minutes=1)
+            )
+        )
+
+    @callback
+    def _refresh_uptime(self, _now: object) -> None:
+        self.async_write_ha_state()
