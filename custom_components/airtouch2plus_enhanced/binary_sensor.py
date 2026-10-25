@@ -40,6 +40,15 @@ class AirTouchConnectionSensor(BinarySensorEntity):
     def is_on(self) -> bool:
         return self._client.connected
 
+    @property
+    def extra_state_attributes(self) -> dict[str, int | str | None]:
+        """Keep short disconnects visible even after a quick reconnection."""
+        last = self._client.last_tcp_disconnect
+        return {
+            "disconnect_count": self._client.tcp_disconnect_count,
+            "last_disconnected": last.isoformat() if last else None,
+        }
+
     async def async_added_to_hass(self) -> None:
         # Changes are pushed immediately rather than waiting for a HA poll.
         self.async_on_remove(
