@@ -23,16 +23,17 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """Validate the user input allows us to connect."""
     client = At2PlusClient(data[CONF_HOST])
 
-    if not await client.connect():
-        raise CannotConnect
+    try:
+        if not await client.connect():
+            raise CannotConnect
 
-    client.run()
-
-    await client.wait_for_ac()
-    if not client.aircons_by_id:
-        raise NoUnits
-
-    await client.stop()
+        client.run()
+        await client.wait_for_ac()
+        if not client.aircons_by_id:
+            raise NoUnits
+    finally:
+        # Discovery is temporary; never leak a client after a failed setup.
+        await client.stop()
     # Return info that you want to store in the config entry.
     return {"title": "AirTouch 2+ Enhanced"}
 
