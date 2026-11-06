@@ -28,7 +28,7 @@ def test_climate_temperature_properties_use_native_api():
     }
 
     assert {"native_current_temperature", "native_target_temperature"} <= methods
-    assert {"current_temperature", "target_temperature"} .isdisjoint(methods)
+    assert {"current_temperature", "target_temperature"}.isdisjoint(methods)
     assert "_attr_native_temperature_unit" in attributes
     assert "_attr_temperature_unit" not in attributes
 
