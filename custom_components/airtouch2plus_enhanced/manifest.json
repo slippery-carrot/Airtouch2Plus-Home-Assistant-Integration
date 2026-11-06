@@ -12,6 +12,6 @@
   "issue_tracker": "https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/issues",
   "requirements": [],
   "ssdp": [],
-  "version": "0.5.1",
+  "version": "0.5.2",
   "zeroconf": []
 }

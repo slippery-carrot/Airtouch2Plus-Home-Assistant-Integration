@@ -30,6 +30,17 @@ The integration is installed at `custom_components/airtouch2plus_enhanced` with 
 
 The AirTouch device exposes **TCP connection** (connected/disconnected) and **TCP connection uptime** (duration in seconds, refreshed once per minute). The uptime resets if the connection is lost and starts again after reconnecting, including following an integration restart. The connectivity state reflects the library's socket tracking; it is not yet a proof that application-level status responses are arriving. A frozen or half-open connection may still appear connected until a network error is detected.
 
+## TCP lifecycle resilience (v0.5.2 candidate)
+
+The single read supervisor automatically replaces the TCP session after socket or
+message-parser failures, with bounded reconnect backoff. Failed writes are
+reported rather than silently replayed, because the controller may already
+have applied a command before the socket reported failure.
+
+Reload and unsuccessful integration setup close the associated socket and
+cancel communication tasks. The four-minute protocol keepalive and controller
+status acknowledgements remain unchanged.
+
 ## Development and acknowledgements
 
 This rebrand retains existing controller-protocol code and entity unique-ID patterns, while changing the Home Assistant integration identity. Please report problems to [this repository's issues](https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/issues).

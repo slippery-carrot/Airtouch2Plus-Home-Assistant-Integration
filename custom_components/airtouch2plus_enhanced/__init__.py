@@ -25,15 +25,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
     client = At2PlusClient(entry.data[CONF_HOST])
-    if not await client.connect():
-        raise ConfigEntryNotReady(
-            f"AirTouch 2+ Enhanced client failed to connect to {entry.data[CONF_HOST]}")
-    client.run()
-    await client.wait_for_ac()
-    if not client.aircons_by_id:
-        raise ConfigEntryNotReady("No AC units were found")
-    hass.data[DOMAIN][entry.entry_id] = client
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    try:
+        if not await client.connect():
+            raise ConfigEntryNotReady(
+                f"AirTouch 2+ Enhanced client failed to connect to {entry.data[CONF_HOST]}")
+        client.run()
+        await client.wait_for_ac()
+        if not client.aircons_by_id:
+            raise ConfigEntryNotReady("No AC units were found")
+        hass.data[DOMAIN][entry.entry_id] = client
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    except BaseException:
+        # Incomplete setup (including a timeout) must not leave TCP tasks or
+        # sockets behind when Home Assistant retries the config entry.
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+        await client.stop()
+        raise
 
     return True
 
@@ -41,8 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
-        client: At2PlusClient = hass.data[DOMAIN][entry.entry_id]
+        client: At2PlusClient = hass.data[DOMAIN].pop(entry.entry_id)
         await client.stop()
-        hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok

@@ -80,8 +80,13 @@ class At2PlusClient:
 
     async def stop(self) -> None:
         if self._poll_task is not None:
-            self._poll_task.cancel()
+            task = self._poll_task
             self._poll_task = None
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
         await self._client.stop()
 
     def add_new_ac_callback(self, callback: Callback):
