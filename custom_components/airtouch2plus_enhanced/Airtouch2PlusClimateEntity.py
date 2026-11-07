@@ -15,9 +15,11 @@ from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
-    UnitOfTemperature,
+)
+from homeassistant.const import (
     ATTR_TEMPERATURE,
-    PRECISION_WHOLE
+    PRECISION_WHOLE,
+    UnitOfTemperature,
 )
 from homeassistant.helpers.entity import DeviceInfo
 
@@ -38,7 +40,8 @@ class Airtouch2PlusClimateEntity(ClimateEntity):
     _attr_min_temp: float = 10.0
     _attr_precision: float = PRECISION_WHOLE
     _attr_target_temperature_step: float = 1.0
-    _attr_temperature_unit: str = UnitOfTemperature.CELSIUS
+    # The controller reports Celsius; HA converts to the user's preferred unit.
+    _attr_native_temperature_unit: str = UnitOfTemperature.CELSIUS
 
     def __init__(self, at2plus_aircon: At2PlusAircon) -> None:
         """Initialize the climate device."""
@@ -107,7 +110,7 @@ class Airtouch2PlusClimateEntity(ClimateEntity):
         return modes
 
     @property
-    def current_temperature(self) -> float:
+    def native_current_temperature(self) -> float:
         """Return the current temperature."""
         if self._ac.status.temperature is not None:
             return self._ac.status.temperature
@@ -115,7 +118,7 @@ class Airtouch2PlusClimateEntity(ClimateEntity):
             return 0
 
     @property
-    def target_temperature(self) -> float:
+    def native_target_temperature(self) -> float:
         """Return the temperature we try to reach."""
         if self._ac.status.set_point is not None:
             return self._ac.status.set_point

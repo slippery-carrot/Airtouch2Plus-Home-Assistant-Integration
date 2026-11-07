@@ -41,6 +41,19 @@ Reload and unsuccessful integration setup close the associated socket and
 cancel communication tasks. The four-minute protocol keepalive and controller
 status acknowledgements remain unchanged.
 
+## Home Assistant Core compatibility
+
+**Home Assistant Core 2026.11.0 or newer is required for this development branch.**
+The climate entity now uses the native-temperature API introduced in 2026.11:
+`native_current_temperature`, `native_target_temperature`, and
+`_attr_native_temperature_unit`. The temperature constants are imported
+from `homeassistant.const`, correcting the integration startup failure in
+2026.11. The controller continues to report Celsius, with Home Assistant
+handling conversion into the installation's preferred temperature unit.
+
+Users staying on Core 2026.10 should keep the older compatible release rather
+than installing this branch. Test on 2026.11 before publishing a stable release.
+
 ## Development and acknowledgements
 
 This rebrand retains existing controller-protocol code and entity unique-ID patterns, while changing the Home Assistant integration identity. Please report problems to [this repository's issues](https://github.com/slippery-carrot/Airtouch2Plus-Home-Assistant-Integration/issues).
